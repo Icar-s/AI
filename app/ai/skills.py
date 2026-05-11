@@ -1,0 +1,22 @@
+TECH_SKILLS = [
+    "python",
+    "fastapi",
+    "django",
+    "flask",
+    "javascript",
+    "react",
+    "node.js",
+    "postgresql",
+    "mysql",
+    "sqlite",
+    "docker",
+    "git",
+    "jwt",
+    "sqlalchemy",
+    "html",
+    "css",
+    "aws",
+    "linux",
+    "rest api",
+    "bcrypt"
+]
