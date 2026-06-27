@@ -1,134 +1,187 @@
-# AI Resume Analyzer 
+# AI Resume Analyzer
 
-Sistema de análise inteligente de currículos usando IA local, comparação semântica e API backend em FastAPI.
+AI Resume Analyzer is a local-first prototype for evaluating how well a resume matches a job description. It processes a PDF resume, extracts relevant skills with a local LLM, compares them semantically with embeddings, and returns a similarity score along with the matched and missing skills.
 
-O projeto compara um currículo em PDF com uma descrição de vaga e retorna:
-- Score de similaridade
-- Skills encontradas no currículo
-- Skills exigidas na vaga
-- Skills faltantes
+## Overview
 
-Tudo rodando localmente com modelo de IA via Ollama.
+The project combines a FastAPI backend, a terminal-based CLI, and local AI inference through Ollama. It is designed for experimentation, demos, and small-scale resume analysis workflows without depending on external cloud services.
 
----
+## What the application does
 
-#  Demonstração
+1. Accepts a resume in PDF format.
+2. Extracts the text from the PDF.
+3. Uses a local LLM via Ollama to identify relevant technical skills.
+4. Normalizes and compares the extracted skills against the job description.
+5. Computes semantic similarity using sentence embeddings.
+6. Returns a JSON response that can be consumed by the CLI or by external clients.
 
-O usuário:
-1. Envia um currículo em PDF
-2. Cola uma descrição de vaga
-3. O sistema processa e retorna a análise
+## Key features
 
----
+- Resume PDF upload and parsing
+- Local AI-based skill extraction
+- Semantic similarity scoring with embeddings
+- Comparison between resume skills and job requirements
+- Interactive terminal interface
+- REST API with FastAPI
+- Automatic API documentation through Swagger UI
 
-#  Como funciona
+## Architecture
 
-1. PDF é convertido em texto
-2. LLM local (Phi3 via Ollama) extrai skills do texto
-3. Skills são normalizadas
-4. Embeddings são usados para cálculo de similaridade semântica
-5. Resultado é retornado via API
-6. CLI exibe resultado formatado no terminal
+The application follows a simple pipeline:
 
----
+CLI / client -> FastAPI endpoint -> PDF text extraction -> LLM skill extraction -> embedding-based similarity -> JSON response
 
-# 🏗️ Arquitetura
+## Tech stack
 
-CLI (Rich Terminal)
-↓
-FastAPI Backend
-↓
-Ollama (Phi3 LLM)
-↓
-Skill Extraction
-↓
-Embedding Model
-↓
-Cosine Similarity
-↓
-JSON Response
-
----
-
-# 🧪 Funcionalidades
-
-- Upload de PDF de currículo
-- Extração de texto de PDF
-- Extração de skills via LLM local
-- Normalização de texto
-- Comparação de skills com vaga
-- Cálculo de similaridade
-- Interface CLI estilizada
-- API documentada via Swagger
-
----
-
-# 🧰 Tecnologias utilizadas
-
-## Backend
+### Backend
 - Python
 - FastAPI
 - Uvicorn
 
-## IA / NLP
-- Ollama (inferência local)
-- Phi3 (LLM)
-- Sentence Transformers (embeddings)
-- NLP básico (normalização e parsing)
+### AI and NLP
+- Ollama
+- Phi-3 model
+- Sentence Transformers
+- scikit-learn
 
-## Processamento
-- PyMuPDF / PDF parsing
-- Regex
-- JSON parsing
+### Document processing
+- pypdf
+- Regular expressions for text normalization
 
-## CLI
-- Rich (interface)
-- Requests (consumo da API)
+### CLI
+- Rich
+- Requests
 
-## Infra / Dev Tools
-- Git
-- Virtualenv
-- Windows Terminal / CMD
-- Batch scripts (.bat automation)
+## Prerequisites
 
----
+Before running the project, make sure you have:
 
-# ⚙️ Como rodar o projeto
+- Python 3.10 or newer
+- Ollama installed and running locally
+- The Phi-3 model available in Ollama
 
-## Execute o start.bat e aguarde até que na janela AI Resume Analyzer inicie a interface da ferramenta
+Install the model with:
 
-# 📊 Exemplo de saída
+```bash
+ollama pull phi3
+```
 
-## Similarity Score: 81%
+## Installation
 
-Matched Skills:
-- Python
-- FastAPI
-- PostgreSQL
+Create and activate a virtual environment:
 
-Missing Skills:
-- Docker
-- AWS
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
-#  Objetivo do projeto
+On Windows, use:
 
-## Demonstrar:
+```bash
+venv\Scripts\activate
+```
 
-Integração de IA local em aplicações reais
-Arquitetura backend moderna com FastAPI
-Processamento de texto com NLP
-Uso de embeddings para similaridade semântica
-Construção de CLI interativa
-Automação de execução de sistemas completos
+Install the dependencies:
 
-# ⚠️ Observações
-O projeto utiliza modelo local (Ollama)
-Pode consumir CPU/RAM durante execução
-Recomendado fechar aplicações pesadas ao rodar
+```bash
+pip install -r requirements.txt
+```
 
-👨‍💻 Autor
+## Running the project
 
-Icaro Santos 
+### 1. Start the local model
 
-GitHub: https://github.com/Icar-s
-LinkedIn: https://www.linkedin.com/in/icarush/
+```bash
+ollama run phi3
+```
+
+### 2. Start the FastAPI server
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The API will be available at:
+
+- http://127.0.0.1:8000/docs for Swagger UI
+
+### 3. Start the CLI
+
+```bash
+python cli.py
+```
+
+### Windows convenience script
+
+A Windows batch script is also available:
+
+```bash
+start.bat
+```
+
+## API usage
+
+### Endpoint
+
+POST /analyze-resume
+
+### Request format
+
+The endpoint expects multipart form data with:
+
+- file: the PDF resume file
+- job_description: the target job description as a plain text string
+
+### Example with curl
+
+```bash
+curl -X POST "http://127.0.0.1:8000/analyze-resume" \
+  -F "file=@/path/to/resume.pdf" \
+  -F "job_description=Python, FastAPI, PostgreSQL, Docker"
+```
+
+### Response example
+
+```json
+{
+  "similarity_score": 0.81,
+  "resume_skills": ["Python", "FastAPI", "PostgreSQL"],
+  "job_skills": ["Python", "FastAPI", "Docker", "AWS"]
+}
+```
+
+## Project structure
+
+```text
+.
+├── app/
+│   ├── ai/
+│   │   ├── embedding_model.py
+│   │   └── ollama_client.py
+│   ├── main.py
+│   ├── routes/
+│   │   └── analysis_routes.py
+│   ├── schemas/
+│   ├── services/
+│   │   ├── ai_service.py
+│   │   └── llm_skill_extractor.py
+│   └── utils/
+│       ├── pdf_reader.py
+│       └── text_cleaner.py
+├── cli.py
+├── requirements.txt
+├── start.bat
+```
+
+## Notes
+
+- This project is a prototype focused on local experimentation and simple resume screening use cases.
+- Performance depends on the machine hardware and the availability of the local Ollama service.
+- The skill extraction step is prompt-based and may require tuning for more accurate results.
+
+## Author
+
+Icaro Santos
+
+- GitHub: https://github.com/Icar-s
+- LinkedIn: https://www.linkedin.com/in/icarush/
